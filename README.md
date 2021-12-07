@@ -1,5 +1,5 @@
 # GRAFANA de ambiente de monitoamento, grafana e prometheus
-criando ambiente de monitoramento grafana com jobs prometheus.
+criando ambiente de monitoramento grafana com jobs prometheus, usando google cloud, terraform .
 
 instalando grafana
 
