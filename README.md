@@ -1,5 +1,5 @@
-# prometheus
-criarçao de ambiente de monitoamento, prometheus
+# GRAFANA
+criarçao de ambiente de monitoamento, grafana e prometheus
 
 
 instalando grafana
