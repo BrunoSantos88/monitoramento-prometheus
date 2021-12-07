@@ -1,6 +1,5 @@
-# GRAFANA
-criarçao de ambiente de monitoamento, grafana e prometheus
-
+# GRAFANA de ambiente de monitoamento, grafana e prometheus
+criando ambiente de monitoramento grafana com jobs prometheus.
 
 instalando grafana
 
