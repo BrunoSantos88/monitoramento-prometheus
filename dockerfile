@@ -1,28 +1,25 @@
-# From & maintainer
-FROM                stakater/base:latest
-MAINTAINER          Rasheed Amir <rasheed@aurorasolutions.io>
+FROM bitnami/minideb:stretch
+LABEL maintainer "Bitnami <containers@bitnami.com>"
 
-ARG                 GRAFANA_VERSION
+# Install required system packages and dependencies
+RUN install_packages ca-certificates curl libblkid1 libc6 libexpat1 libffi6 libfontconfig libgcc1 libglib2.0-0 libmount1 libpcre3 libselinux1 libstdc++6 libuuid1 procps sudo unzip wget zlib1g
+RUN wget -nc -P /tmp/bitnami/pkg/cache/ https://downloads.bitnami.com/files/stacksmith/grafana-6.5.3-0-linux-amd64-debian-9.tar.gz && \
+    echo "c800a3ccc5852418809d075ae1d9ad8cb9b8520c0640b9bfabdd41ad2970bfdc  /tmp/bitnami/pkg/cache/grafana-6.5.3-0-linux-amd64-debian-9.tar.gz" | sha256sum -c - && \
+    tar -zxf /tmp/bitnami/pkg/cache/grafana-6.5.3-0-linux-amd64-debian-9.tar.gz -P --transform 's|^[^/]*/files|/opt/bitnami|' --wildcards '*/files' && \
+    rm -rf /tmp/bitnami/pkg/cache/grafana-6.5.3-0-linux-amd64-debian-9.tar.gz
+RUN apt-get update && apt-get upgrade && \
+    rm -r /var/lib/apt/lists /var/cache/apt/archives
+RUN mv /opt/bitnami/grafana/conf/sample.ini /opt/bitnami/grafana/conf/grafana.ini
+RUN mkdir -p /opt/bitnami/grafana/data/ /opt/bitnami/grafana/logs/ && chmod g+rwX /opt/bitnami/grafana/data/ /opt/bitnami/grafana/logs/
 
-# for installing kairosdb datasource
-ENV                 GF_INSTALL_PLUGINS=grafana-kairosdb-datasource
+COPY rootfs /
+RUN /grafana-plugins.sh
+ENV BITNAMI_APP_NAME="grafana" \
+    BITNAMI_IMAGE_VERSION="6.5.3-debian-9-r6" \
+    PATH="/opt/bitnami/grafana/bin:$PATH"
 
-RUN                 apt-get update && \
-                    apt-get -y --no-install-recommends install libfontconfig curl ca-certificates && \
-                    apt-get clean && \
-                    curl https://grafanarel.s3.amazonaws.com/builds/grafana_${GRAFANA_VERSION}_amd64.deb > /tmp/grafana.deb && \
-                    dpkg -i /tmp/grafana.deb && \
-                    rm /tmp/grafana.deb && \
-                    curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 > /usr/sbin/gosu && \
-                    chmod +x /usr/sbin/gosu && \
-                    apt-get remove -y curl && \
-                    apt-get autoremove -y && \
-                    rm -rf /var/lib/apt/lists/*
+EXPOSE 3000
 
-VOLUME              ["/var/lib/grafana", "/var/lib/grafana/plugins", "/var/log/grafana", "/etc/grafana"]
-
-EXPOSE              3000
-
-COPY                ./run.sh /run.sh
-
-ENTRYPOINT          ["/run.sh"]
+WORKDIR /opt/bitnami/grafana
+USER 1001
+ENTRYPOINT [ "/run.sh" ]
